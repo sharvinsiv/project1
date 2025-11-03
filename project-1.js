@@ -10,7 +10,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
   static get tag() {
     return "project-1";
   }
-
   static get properties() {
     return {
       ...super.properties,
@@ -100,7 +99,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
         border-radius: 6px;
         border: none;
       }
-
       .like-btn:hover, .dislike-btn:hover, .share-btn:hover {
         opacity: 0.8;
       }
@@ -145,7 +143,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       }
     `];
   }
-
   firstUpdated() {
     const params = new URLSearchParams(window.location.search);
     const foxNum = parseInt(params.get("fox"));
@@ -178,7 +175,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       c.id === id ? { ...c, likes: c.likes + 1 } : c
     );
   }
-
   dislike(id) {
     this.foxCards = this.foxCards.map(c =>
       c.id === id ? { ...c, dislikes: c.dislikes + 1 } : c
@@ -190,7 +186,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       this.onscreenStart += this.cardsPerPage;
     }
   }
-
   prevSet() {
     if (this.onscreenStart - this.cardsPerPage >= 0) {
       this.onscreenStart -= this.cardsPerPage;
@@ -198,7 +193,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       this.onscreenStart = 0;
     }
   }
-
   async copyingtheLink(id) {
     const url = `${window.location.origin}${window.location.pathname}?fox=${id}`;
     try {
@@ -209,7 +203,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       console.error("Couldn't get the link", err);
     }
   }
-
   renderCard(card) {
     return html`
       <div class="fox-card">
@@ -230,7 +223,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       </div>
     `;
   }
-
   render() {
     const end = Math.min(this.onscreenStart + this.cardsPerPage, this.foxCards.length);
     const visibleCards = this.foxCards.slice(this.onscreenStart, end);
@@ -247,5 +239,4 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     `;
   }
 }
-
 customElements.define(Project1.tag, Project1);
