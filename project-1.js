@@ -21,6 +21,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       cardsPerPage: { type: Number },
       copiedLinks: { type: Object },
       singleFoxId: { type: Number },
+      dataSrc: { type: String }, 
     };
   }
 
@@ -33,6 +34,8 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     this.cardsPerPage = 6;
     this.copiedLinks = {};
     this.singleFoxId = null;
+    this.dataSrc = ""; 
+
     this.imageObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -75,30 +78,48 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     localStorage.setItem("foxDislikes", JSON.stringify(this.dislikes));
   }
 
+  
   async loadFoxCards() {
-    const users = [
-      { name: "Lena Fox", avatar: "https://i.pravatar.cc/100?img=1" },
-      { name: "Marcus Hill", avatar: "https://i.pravatar.cc/100?img=2" },
-      { name: "Jin Park", avatar: "https://i.pravatar.cc/100?img=3" },
-      { name: "Ava Stone", avatar: "https://i.pravatar.cc/100?img=4" },
-      { name: "Theo Brown", avatar: "https://i.pravatar.cc/100?img=5" },
-      { name: "Sofia Cruz", avatar: "https://i.pravatar.cc/100?img=6" },
-      { name: "Ben Rivers", avatar: "https://i.pravatar.cc/100?img=7" },
-      { name: "Isla Gray", avatar: "https://i.pravatar.cc/100?img=8" },
-      { name: "Owen Lee", avatar: "https://i.pravatar.cc/100?img=9" },
-      { name: "Maya Fields", avatar: "https://i.pravatar.cc/100?img=10" },
-    ];
+    try {
+      if (this.dataSrc) {
+        const res = await fetch(this.dataSrc);
+        if (!res.ok) throw new Error("Failed to load JSON");
+        const data = await res.json();
 
-    const foxCount = 51;
-    this.foxCards = Array.from({ length: foxCount }, (_, i) => {
-      const user = users[i % users.length];
-      return {
-        id: i + 1,
-        image: `https://randomfox.ca/images/${i + 1}.jpg`,
-        name: user.name,
-        avatar: user.avatar,
-      };
-    });
+        
+        if (Array.isArray(data)) {
+          this.foxCards = data;
+          return;
+        }
+      }
+
+      const users = [
+        { name: "Lena Fox", avatar: "https://i.pravatar.cc/100?img=1" },
+        { name: "Marcus Hill", avatar: "https://i.pravatar.cc/100?img=2" },
+        { name: "Jin Park", avatar: "https://i.pravatar.cc/100?img=3" },
+        { name: "Ava Stone", avatar: "https://i.pravatar.cc/100?img=4" },
+        { name: "Theo Brown", avatar: "https://i.pravatar.cc/100?img=5" },
+        { name: "Sofia Cruz", avatar: "https://i.pravatar.cc/100?img=6" },
+        { name: "Ben Rivers", avatar: "https://i.pravatar.cc/100?img=7" },
+        { name: "Isla Gray", avatar: "https://i.pravatar.cc/100?img=8" },
+        { name: "Owen Lee", avatar: "https://i.pravatar.cc/100?img=9" },
+        { name: "Maya Fields", avatar: "https://i.pravatar.cc/100?img=10" },
+      ];
+
+      const foxCount = 50;
+      this.foxCards = Array.from({ length: foxCount }, (_, i) => {
+        const user = users[i % users.length];
+        return {
+          id: i + 1,
+          image: `https://randomfox.ca/images/${i + 1}.jpg`,
+          name: user.name,
+          avatar: user.avatar,
+        };
+      });
+    } catch (err) {
+      console.warn("Could not load JSON endpoint:", err);
+      this.foxCards = [];
+    }
   }
 
   like(id) {
@@ -128,18 +149,16 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     }
   }
 
+  // Trying to make it an infinite loop
   nextSet() {
-    if (this.onscreenStart + this.cardsPerPage < this.foxCards.length) {
-      this.onscreenStart += this.cardsPerPage;
-    }
+    const total = this.foxCards.length;
+    this.onscreenStart = (this.onscreenStart + this.cardsPerPage) % total;
   }
 
   prevSet() {
-    if (this.onscreenStart - this.cardsPerPage >= 0) {
-      this.onscreenStart -= this.cardsPerPage;
-    } else {
-      this.onscreenStart = 0;
-    }
+    const total = this.foxCards.length;
+    this.onscreenStart =
+      (this.onscreenStart - this.cardsPerPage + total) % total;
   }
 
   static get styles() {
@@ -210,16 +229,11 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
           font-size: 1rem;
         }
 
-        .image-container {
-          width: 100%;
-          background: #eee;
-          overflow: hidden;
-        }
-
         .image-container img {
           width: 100%;
           height: auto;
           display: block;
+          background: #eee;
         }
 
         .actions {
@@ -271,7 +285,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
         .copied-msg {
           text-align: center;
           font-size: 0.9rem;
-          color: #0c7b1f;
+          color: #0d5e1a;
           margin-bottom: 8px;
         }
 
@@ -291,11 +305,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
           border: none;
           background: #2b1600;
           color: #fff;
-        }
-
-        .nav-btn:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
         }
       `,
     ];
@@ -325,7 +334,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
         </div>
 
         <button class="share" @click="${() => this.copyLink(card.id)}">
-          Copy Fox Link
+          Copy The Fox
         </button>
 
         ${this.copiedLinks[card.id]
@@ -345,31 +354,19 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       `;
     }
 
-    const end = Math.min(
-      this.onscreenStart + this.cardsPerPage,
-      this.foxCards.length
-    );
-    const visibleCards = this.foxCards.slice(this.onscreenStart, end);
+    const total = this.foxCards.length;
+    const visibleCards = [];
+
+    for (let i = 0; i < this.cardsPerPage; i++) {
+      visibleCards.push(this.foxCards[(this.onscreenStart + i) % total]);
+    }
 
     return html`
       <header>Project 1: Fox Pics</header>
 
       <div class="nav-btns">
-        <button
-          class="nav-btn"
-          @click="${this.prevSet}"
-          ?disabled="${this.onscreenStart === 0}"
-        >
-          ⟨
-        </button>
-        <button
-          class="nav-btn"
-          @click="${this.nextSet}"
-          ?disabled="${this.onscreenStart + this.cardsPerPage >=
-          this.foxCards.length}"
-        >
-          ⟩
-        </button>
+        <button class="nav-btn" @click="${this.prevSet}">⟨</button>
+        <button class="nav-btn" @click="${this.nextSet}">⟩</button>
       </div>
 
       <div class="gallery">
