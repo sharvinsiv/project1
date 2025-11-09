@@ -362,7 +362,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     }
 
     return html`
-      <header>Project 1: Fox Pics</header>
+      <header>Fox Pics</header>
 
       <div class="nav-btns">
         <button class="nav-btn" @click="${this.prevSet}">⟨</button>
