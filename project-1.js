@@ -7,7 +7,6 @@ import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
 import "@haxtheweb/simple-icon/lib/simple-icon-lite.js";
 import "@haxtheweb/simple-icon/lib/simple-icons.js";
-import "@haxtheweb/simple-icon/lib/simple-iconset-material.js"; // ensures icons load on Vercel
 
 export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
   static get tag() {
@@ -34,7 +33,6 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     this.onscreenStart = 0;
     this.cardsPerPage = 6;
     this.linkCopied = false;
-
     this.imageObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -203,18 +201,17 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
           font-size: 1rem;
         }
 
-        /* Fixed image scaling */
         .image-container {
           width: 100%;
+          height: 220px;
           background: #eee;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          overflow: hidden;
         }
 
         .image-container img {
           width: 100%;
-          height: auto;
+          height: 100%;
+          object-fit: cover;
           display: block;
         }
 
@@ -311,12 +308,12 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="actions">
           <button @click="${() => this.like(card.id)}" title="Like">
-            Like
+            <simple-icon-lite icon="favorite"></simple-icon-lite>
             <span class="likes-count">${this.likes[card.id] || 0}</span>
           </button>
 
           <button @click="${() => this.dislike(card.id)}" title="Dislike">
-            Dislike
+            <simple-icon-lite icon="thumb-down"></simple-icon-lite>
             <span class="dislikes-count">${this.dislikes[card.id] || 0}</span>
           </button>
         </div>
@@ -368,4 +365,3 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 }
 
 customElements.define(Project1.tag, Project1);
-
