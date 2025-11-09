@@ -71,15 +71,29 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   async loadFoxCards() {
-    try {
-      const res = await fetch(
-        new URL("./NewAssetsIThink/fox-picGalley.json", import.meta.url)
-      );
-      const data = await res.json();
-      this.foxCards = data.gallery;
-    } catch (e) {
-      console.error("Error loading fox gallery JSON:", e);
-    }
+    const users = [
+      { name: "Lena Fox", avatar: "https://i.pravatar.cc/100?img=1" },
+      { name: "Marcus Hill", avatar: "https://i.pravatar.cc/100?img=2" },
+      { name: "Jin Park", avatar: "https://i.pravatar.cc/100?img=3" },
+      { name: "Ava Stone", avatar: "https://i.pravatar.cc/100?img=4" },
+      { name: "Theo Brown", avatar: "https://i.pravatar.cc/100?img=5" },
+      { name: "Sofia Cruz", avatar: "https://i.pravatar.cc/100?img=6" },
+      { name: "Ben Rivers", avatar: "https://i.pravatar.cc/100?img=7" },
+      { name: "Isla Gray", avatar: "https://i.pravatar.cc/100?img=8" },
+      { name: "Owen Lee", avatar: "https://i.pravatar.cc/100?img=9" },
+      { name: "Maya Fields", avatar: "https://i.pravatar.cc/100?img=10" },
+    ];
+
+    const foxCount = 51;
+    this.foxCards = Array.from({ length: foxCount }, (_, i) => {
+      const user = users[i % users.length];
+      return {
+        id: i + 1,
+        image: `https://randomfox.ca/images/${i + 1}.jpg`,
+        name: user.name,
+        avatar: user.avatar,
+      };
+    });
   }
 
   like(id) {
@@ -189,18 +203,18 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 
         .image-container {
           width: 100%;
-          height: 240px;
-          background: #fafafa;
+          aspect-ratio: 4 / 3; /* <-- Changed aspect ratio */
+          background: #eee;
+          overflow: hidden;
           display: flex;
           align-items: center;
           justify-content: center;
-          overflow: hidden;
         }
 
         .image-container img {
           width: 100%;
           height: 100%;
-          object-fit: contain;
+          object-fit: contain; /* prevents cropping while keeping shape */
           display: block;
           background: #00000010;
         }
@@ -288,8 +302,8 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     return html`
       <div class="card">
         <div class="profile">
-          <img src="${card.profilePic}" alt="${card.username}" />
-          <span>${card.username}</span>
+          <img src="${card.avatar}" alt="${card.name}" />
+          <span>${card.name}</span>
         </div>
 
         <div class="image-container">
