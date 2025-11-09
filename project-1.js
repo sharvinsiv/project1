@@ -203,15 +203,13 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 
         .image-container {
           width: 100%;
-          height: 220px;
           background: #eee;
           overflow: hidden;
         }
 
         .image-container img {
           width: 100%;
-          height: 100%;
-          object-fit: cover;
+          height: auto;
           display: block;
         }
 
@@ -308,12 +306,11 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="actions">
           <button @click="${() => this.like(card.id)}" title="Like">
-            <simple-icon-lite icon="favorite"></simple-icon-lite>
-            <span class="likes-count">${this.likes[card.id] || 0}</span>
+            Like <span class="likes-count">${this.likes[card.id] || 0}</span>
           </button>
 
           <button @click="${() => this.dislike(card.id)}" title="Dislike">
-            <simple-icon-lite icon="thumb-down"></simple-icon-lite>
+            Dislike
             <span class="dislikes-count">${this.dislikes[card.id] || 0}</span>
           </button>
         </div>
