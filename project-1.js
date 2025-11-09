@@ -5,8 +5,6 @@
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
-import "@haxtheweb/simple-icon/lib/simple-icon-lite.js";
-import "@haxtheweb/simple-icon/lib/simple-icons.js";
 
 export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
   static get tag() {
@@ -21,7 +19,8 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
       dislikes: { type: Object },
       onscreenStart: { type: Number },
       cardsPerPage: { type: Number },
-      linkCopied: { type: Boolean },
+      copiedLinks: { type: Object },
+      singleFoxId: { type: Number },
     };
   }
 
@@ -32,7 +31,8 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     this.dislikes = {};
     this.onscreenStart = 0;
     this.cardsPerPage = 6;
-    this.linkCopied = false;
+    this.copiedLinks = {};
+    this.singleFoxId = null;
     this.imageObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -49,6 +49,11 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 
   connectedCallback() {
     super.connectedCallback();
+    const params = new URLSearchParams(window.location.search);
+    const foxParam = params.get("fox");
+    if (foxParam) {
+      this.singleFoxId = parseInt(foxParam);
+    }
     this.loadFoxCards();
     this.loadReactions();
   }
@@ -112,8 +117,12 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     const url = `${window.location.origin}${window.location.pathname}?fox=${id}`;
     try {
       await navigator.clipboard.writeText(url);
-      this.linkCopied = true;
-      setTimeout(() => (this.linkCopied = false), 1500);
+      this.copiedLinks = { ...this.copiedLinks, [id]: true };
+      setTimeout(() => {
+        delete this.copiedLinks[id];
+        this.requestUpdate();
+      }, 1500);
+      this.requestUpdate();
     } catch (err) {
       console.error("Couldn't copy link:", err);
     }
@@ -305,11 +314,11 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
         </div>
 
         <div class="actions">
-          <button @click="${() => this.like(card.id)}" title="Like">
+          <button @click="${() => this.like(card.id)}">
             Like <span class="likes-count">${this.likes[card.id] || 0}</span>
           </button>
 
-          <button @click="${() => this.dislike(card.id)}" title="Dislike">
+          <button @click="${() => this.dislike(card.id)}">
             Dislike
             <span class="dislikes-count">${this.dislikes[card.id] || 0}</span>
           </button>
@@ -319,7 +328,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
           Copy Fox Link
         </button>
 
-        ${this.linkCopied
+        ${this.copiedLinks[card.id]
           ? html`<div class="copied-msg">Link copied to clipboard!</div>`
           : ""}
       </div>
@@ -327,6 +336,15 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   render() {
+    if (this.singleFoxId) {
+      const fox = this.foxCards.find((f) => f.id === this.singleFoxId);
+      if (!fox) return html`<div>Fox not found.</div>`;
+      return html`
+        <header>Project 1: Fox Gallery</header>
+        <div class="gallery">${this.renderCard(fox)}</div>
+      `;
+    }
+
     const end = Math.min(
       this.onscreenStart + this.cardsPerPage,
       this.foxCards.length
@@ -334,7 +352,7 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
     const visibleCards = this.foxCards.slice(this.onscreenStart, end);
 
     return html`
-      <header>Project 1: Fox Gallery</header>
+      <header>Project 1: Fox Pics</header>
 
       <div class="nav-btns">
         <button
@@ -362,3 +380,4 @@ export class Project1 extends DDDSuper(I18NMixin(LitElement)) {
 }
 
 customElements.define(Project1.tag, Project1);
+
